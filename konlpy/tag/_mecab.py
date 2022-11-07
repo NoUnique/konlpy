@@ -4,7 +4,8 @@ from __future__ import absolute_import
 import sys
 
 try:
-    from MeCab import Tagger
+    import mecab_ko_dic
+    from mecab_ko import Tagger
 except ImportError:
     pass
 
@@ -91,15 +92,17 @@ class Mecab():
     .. _Eunjeon Project: http://eunjeon.blogspot.kr/
     """
 
-    def __init__(self, dicpath='/usr/local/lib/mecab/dic/mecab-ko-dic'):
-        self.dicpath = dicpath
+    def __init__(self, dicpath=None):
         try:
-            self.tagger = Tagger('-d %s' % dicpath)
+            if dicpath:
+                self.dicpath = dicpath
+                self.tagger = Tagger('-d %s' % dicpath)
+            else:
+                self.dicpath = mecab_ko_dic.DICDIR
+                self.tagger = Tagger()
             self.tagset = utils.read_json('%s/data/tagset/mecab.json' % utils.installpath)
         except RuntimeError:
             raise Exception('The MeCab dictionary does not exist at "%s". Is the dictionary correctly installed?\nYou can also try entering the dictionary path when initializing the Mecab class: "Mecab(\'/some/dic/path\')"' % dicpath)
-        except NameError:
-            raise Exception('Install MeCab in order to use it: http://konlpy.org/en/latest/install/')
 
     def __setstate__(self, state):
         """just reinitialize."""
